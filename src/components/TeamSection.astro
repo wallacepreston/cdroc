@@ -1,0 +1,103 @@
+---
+import type { Member } from '../types/member';
+
+interface Props {
+  members: Member[];
+}
+
+const { members } = Astro.props;
+
+// Sort members by last name
+const sortedMembers = members.map(member => {
+  const fullName = member.name.split(' ');
+  return {
+    ...member,
+    lastName: fullName[fullName.length - 1]
+  };
+}).sort((a, b) => a.lastName! > b.lastName! ? 1 : -1);
+---
+
+<div class="team-section">
+  <div class="grid-container">
+    {sortedMembers.map((member) => (
+      <div class="grid-item">
+        <div class="member-card">
+          <div class="member-image">
+            <img src={member.image} alt={`headshot of ${member.name}`} />
+          </div>
+          <h4 class="member-name">
+            {member.name}
+          </h4>
+          {member.title ? (
+            <em>{member.title}</em>
+          ) : (
+            <br />
+          )}
+          <div set:html={member.affiliations} />
+          <a href={member.bio} class="bio-link">
+            <small>
+              <span class="bio-icon">👤</span>
+              Member Bio
+            </small>
+          </a>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .team-section {
+    padding: 2rem 0;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 0 1rem;
+  }
+
+  /* Responsive grid adjustments */
+  @media screen and (min-width: 40em) {
+    .grid-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media screen and (min-width: 64em) {
+    .grid-container {
+      grid-template-columns: repeat(3, 1fr); /* 3-across on larger screens */
+    }
+  }
+
+  .member-card {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .member-image img {
+    width: 106px;
+    height: 106px;
+    border-radius: 50%;
+    margin: 0 auto;
+    object-fit: cover;
+  }
+
+  .member-name {
+    margin: 1rem 0 0.5rem;
+    color: #494949;
+  }
+
+  .bio-link {
+    display: inline-flex;
+    align-items: center;
+    color: #494949;
+    text-decoration: none;
+    margin-top: 1rem;
+  }
+
+  .bio-icon {
+    margin-right: 0.5rem;
+  }
+</style> 

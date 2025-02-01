@@ -1,14 +1,153 @@
+---
+// Import the styles
+import '../styles/global.css';
+import '../styles/fonts.0.0.1.css';
+
+interface Props {
+	title?: string;
+}
+
+const { title = "Corporate Directors Roundtable of Orange County" } = Astro.props;
+
+const navLinks = [
+	{ href: "/", text: "Home" },
+	{ href: "/past-events", text: "Past Events" },
+	{ href: "/members", text: "Current Members" },
+	{ href: "/members-only", text: "Members Only" }
+];
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" href="/favicon-32x32.png" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title}</title>
 	</head>
 	<body>
-		<slot />
+		<!-- Branding header -->
+		<header id="branding" class="cdroc-header cdroc-has-search">
+			<div class="cdroc-header-container">
+				<div class="cdroc-header-crest-title">
+					<div class="cdroc-header-crest">
+						<a href="/"><img class="cdroc-crest-svg" src="/logo.png" alt="Link to CDROC home page"/></a>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<!-- Mobile menu button -->
+		<button 
+			class="cdroc-mobile-menu-button-bar" 
+			data-menu="cdroc-top-menus" 
+			aria-label="Open menu" 
+			aria-expanded="false" 
+			aria-controls="cdroc-main-nav"
+			id="menuButton"
+		>
+			<span class="cdroc-sr-only">Menu</span>
+		</button>
+
+		<!-- Main navigation -->
+		<div id="cdroc-top-menus" class="cdroc-is-visible cdroc-horizontal">
+			<div class="cdroc-main-nav">
+				<nav class="cdroc-nav-menu cdroc-nav-menu-reverse" aria-label="Main Menu">
+					<ul id="cdroc-main-nav" class="cdroc-mobile-nav-hidden">
+						{navLinks.map(link => (
+							<li>
+								<a 
+									href={link.href} 
+									class="cdroc-dropdown"
+									aria-current={Astro.url.pathname === link.href ? "page" : undefined}
+								>
+									{link.text}
+								</a>
+							</li>
+						))}
+					</ul>
+				</nav>
+			</div>
+		</div>
+
+		<!-- Main content -->
+		<main id="main">
+			<div class="cdroc-full-row">
+				<slot />
+			</div>
+		</main>
+
+		<!-- Footer -->
+		<footer id="colophon" class="cdroc-footer">
+			<div class="cdroc-footer-content">
+				<div class="cdroc-logo">
+					<a href="/"><img class="cdroc-crest-svg" src="/logo-transp.png" alt="Link to CDROC home page"/></a>
+				</div>
+				
+				<div class="cdroc-footer-menu" role="complementary">
+					<h3 class="cdroc-footer-header">Quick Links</h3>
+					<ul>
+						{navLinks.map(link => (
+							<li>
+								<a 
+									href={link.href} 
+									class="cdroc-dropdown"
+									aria-current={Astro.url.pathname === link.href ? "page" : undefined}
+								>
+									{link.text}
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
+					
+				<div class="cdroc-footer-contact">
+					<h3 class="cdroc-footer-header">Contact Us</h3>
+					<ul class="cdroc-contact-list">
+						<li class="cdroc-contact-item">Email: <a href="mailto:cdrocorg@outlook.com">cdrocorg@outlook.com</a></li>
+						<li class="cdroc-contact-item">Location: Rancho Santa Margarita, CA 92688</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="cdroc-copyright">
+				<p class="cdroc-contact-item">Feedback, questions or accessibility issues: <a href="https://prestonwallace.com/">Preston Wallace</a></p>
+				<p>© <a href="/">Corporate Directors Roundtable of Orange County</a></p>
+			</div>
+		</footer>
+
+		<script>
+			// Mobile menu toggle functionality
+			const menuButton = document.getElementById('menuButton');
+			const mainNav = document.getElementById('cdroc-main-nav');
+
+			menuButton?.addEventListener('click', () => {
+				const isHidden = mainNav?.classList.contains('cdroc-mobile-nav-hidden');
+				if (isHidden) {
+					mainNav?.classList.remove('cdroc-mobile-nav-hidden');
+					mainNav?.classList.add('cdroc-mobile-nav');
+					menuButton.setAttribute('aria-expanded', 'true');
+					menuButton.classList.remove('cdroc-is-closed');
+				} else {
+					mainNav?.classList.add('cdroc-mobile-nav-hidden');
+					mainNav?.classList.remove('cdroc-mobile-nav');
+					menuButton.setAttribute('aria-expanded', 'false');
+					menuButton.classList.add('cdroc-is-closed');
+				}
+			});
+
+			// Close menu when clicking outside
+			document.addEventListener('click', (event) => {
+				const target = event.target as HTMLElement;
+				if (!target.closest('#cdroc-main-nav') && !target.closest('#menuButton')) {
+					mainNav?.classList.add('cdroc-mobile-nav-hidden');
+					mainNav?.classList.remove('cdroc-mobile-nav');
+					menuButton?.setAttribute('aria-expanded', 'false');
+					menuButton?.classList.add('cdroc-is-closed');
+				}
+			});
+		</script>
 	</body>
 </html>
 

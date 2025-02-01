@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getAllPages, getPageBySlug } from '../lib/wordpress';
+
+export async function getStaticPaths() {
+  const pages = await getAllPages();
+  
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+---
+
+<Layout title={page.title.rendered}>
+  <div class="cdroc-row cdroc-flex-reverse">
+    <div class="cdroc-col cdroc-body">
+      <article class="post">
+        <h1 set:html={page.title.rendered} />
+        <div class="wp-content" set:html={page.content.rendered} />
+      </article>
+    </div>
+
+    <aside class="cdroc-col cdroc-sidebar">
+      <div class="cdroc-sidebar-box">
+        <h3>Mission</h3>
+        <p>By and for Board Members, the Corporate Directors Roundtable of Orange County's objective is to enhance the performance of its member Directors in their business, legal and ethical responsibilities.</p>
+      </div>
+    </aside>
+  </div>
+</Layout> 
