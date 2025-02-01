@@ -14,6 +14,7 @@ try {
     affiliations: member.acf.affiliations,
     bio: member.acf.bio
   }));
+  members = members.filter(member => member.affiliations && member.affiliations.trim() !== '(none)'); // Only include members with non-empty affiliations
 } catch (error) {
   console.error("Error fetching members:", error);
 }
