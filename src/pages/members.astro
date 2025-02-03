@@ -5,8 +5,19 @@ import TeamSection from '../components/TeamSection.astro';
 // Fetch members from WordPress
 let members = [];
 try {
-  const res = await fetch("https://acrooc.com/wp-json/wp/v2/posts");
-  const data = await res.json();
+  const perPage = 100;
+  const firstPage = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}`);
+  const totalPages = parseInt(firstPage.headers.get('X-WP-TotalPages') || '1');
+  
+  // Get first page of data
+  let data = await firstPage.json();
+  
+  // Get remaining pages if any
+  for(let page = 2; page <= totalPages; page++) {
+    const res = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&page=${page}`);
+    const moreData = await res.json();
+    data = [...data, ...moreData];
+  }
   members = data.map(member => ({
     name: member.acf.name,
     title: member.acf.title,
