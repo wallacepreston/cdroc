@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import MemberLogin from '../components/MemberLogin.astro';
+import TeamSection from '../components/TeamSection.astro';
 import { getAllPages, getPageBySlug } from '../lib/wordpress';
 
 export async function getStaticPaths() {
@@ -12,23 +14,129 @@ export async function getStaticPaths() {
 }
 
 const { page } = Astro.props;
+const { slug } = Astro.params;
+
+// Fetch members if this is the members-only page
+let members = [];
+if (slug === 'members-only') {
+  try {
+    const perPage = 100;
+    const firstPage = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}`);
+    const totalPages = parseInt(firstPage.headers.get('X-WP-TotalPages') || '1');
+    
+    let data = await firstPage.json();
+    
+    for(let page = 2; page <= totalPages; page++) {
+      const res = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&page=${page}`);
+      const moreData = await res.json();
+      data = [...data, ...moreData];
+    }
+    members = data
+      .map(member => ({
+        name: member.acf.name,
+        title: member.acf.title,
+        image: member.acf.image,
+        affiliations: member.acf.affiliations,
+        bio: member.acf.bio
+      }))
+      .filter(member => member.affiliations && member.affiliations.trim() !== '(none)');
+  } catch (error) {
+    console.error("Error fetching members:", error);
+  }
+}
 ---
 
 <Layout title={page.title.rendered}>
-  <div class="cdroc-row cdroc-flex-reverse">
-    <div class="cdroc-col cdroc-body">
-      <article class="post">
-        <h1 set:html={page.title.rendered} />
-        <div class="wp-content" set:html={page.content.rendered} />
-      </article>
-    </div>
-
-    <!-- TODO - add sidebar back in for homepage only, so that homepage content is configurable -->
-    <!-- <aside class="cdroc-col cdroc-sidebar">
-      <div class="cdroc-sidebar-box">
-        <h3>Mission</h3>
-        <p>By and for Board Members, the Corporate Directors Roundtable of Orange County's objective is to enhance the performance of its member Directors in their business, legal and ethical responsibilities.</p>
+  {slug === 'members-only' ? (
+    <div class="cdroc-row cdroc-flex-reverse">
+      <div class="cdroc-col cdroc-body">
+        <div id="loadingSection" style="display: block;">
+          <div class="loading-spinner">Loading...</div>
+        </div>
+        <div id="loginSection" style="display: none;">
+          <MemberLogin />
+        </div>
+        <div id="membersContent" style="display: none;">
+          <article class="post">
+            <h1 set:html={page.title.rendered} />
+            <div class="wp-content" set:html={page.content.rendered} />
+          </article>
+        </div>
       </div>
-    </aside> -->
-  </div>
-</Layout> 
+    </div>
+  ) : (
+    <div class="cdroc-row cdroc-flex-reverse">
+      <div class="cdroc-col cdroc-body">
+        <article class="post">
+          <h1 set:html={page.title.rendered} />
+          <div class="wp-content" set:html={page.content.rendered} />
+        </article>
+      </div>
+
+      <!-- TODO - add sidebar back in for homepage only, so that homepage content is configurable -->
+      <!-- <aside class="cdroc-col cdroc-sidebar">
+        <div class="cdroc-sidebar-box">
+          <h3>Mission</h3>
+          <p>By and for Board Members, the Corporate Directors Roundtable of Orange County's objective is to enhance the performance of its member Directors in their business, legal and ethical responsibilities.</p>
+        </div>
+      </aside> -->
+    </div>
+  )}
+</Layout>
+
+<script>
+  // Check auth for members-only page
+  if (window.location.pathname.includes('members-only')) {
+    const isLoggedIn = localStorage.getItem('member_logged_in');
+    const loadingSection = document.getElementById('loadingSection');
+    const loginSection = document.getElementById('loginSection');
+    const membersContent = document.getElementById('membersContent');
+
+    // Small delay to ensure smooth transition
+    setTimeout(() => {
+      if (loadingSection) loadingSection.style.display = 'none';
+      
+      if (isLoggedIn) {
+        if (loginSection) loginSection.style.display = 'none';
+        if (membersContent) membersContent.style.display = 'block';
+      } else {
+        if (loginSection) loginSection.style.display = 'block';
+        if (membersContent) membersContent.style.display = 'none';
+      }
+    }, 300);
+  }
+</script>
+
+<style>
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    color: #494949;
+  }
+
+  .loading-spinner::after {
+    content: '';
+    width: 30px;
+    height: 30px;
+    border: 2px solid #ccc;
+    border-top-color: #494949;
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .members-intro {
+    margin: 2rem 0;
+    line-height: 1.6;
+    color: #494949;
+    font-weight: normal;
+  }
+</style> 
