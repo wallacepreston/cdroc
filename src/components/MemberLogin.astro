@@ -36,18 +36,12 @@ const { redirectTo } = Astro.props;
     const passcode = document.getElementById('passcode').value;
 
     try {
-      const res = await fetch('https://acrooc.com/wp-json/wp/v2/posts?per_page=100');
+      const res = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?acf_email=${encodeURIComponent(email)}&acf_member_passcode=${encodeURIComponent(passcode)}`);
       const data = await res.json();
       
-      const member = data.find(post => {
-        return post.acf?.email === email && post.acf?.member_passcode === passcode;
-      });
-      console.log('Found member:', member ? 'yes' : 'no');
-
-      if (member) {
-        console.log('Login successful');
+      if (data && data.length > 0) {
         localStorage.setItem('member_logged_in', 'true');
-        window.location.reload(); // Reload instead of redirect
+        window.location.reload();
       } else {
         errorMessage.textContent = 'Invalid email or passcode';
       }
