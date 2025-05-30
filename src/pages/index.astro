@@ -8,7 +8,8 @@ const homePage = await getPageBySlug('about');
 <Layout title="Corporate Directors Roundtable of Orange County">
   <div class="cdroc-row cdroc-flex-reverse">
     <div class="cdroc-col cdroc-body">
-      <h1 id="cdroc-home-title">Celebrating 16 Years of Excellence in the Boardroom</h1>
+      <!-- if there is no content from WordPress, show the default title -->
+      {!homePage && <h1 id="cdroc-home-title">Celebrating 16 Years of Excellence in the Boardroom</h1>}
       
       {homePage ? (
         <div class="wp-content" set:html={homePage.content.rendered} />
