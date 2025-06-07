@@ -2057,14 +2057,27 @@ body.cdroc-light-gray-bg .cdroc-side-nav {
 .cdroc-sidebar-box {
   background-color: #fff;
   border-bottom: 4px solid #f7cd46;
-  padding: 1rem 1.25rem; }
+  padding: 1rem 1.25rem; 
+}
+.cdroc-sidebar-box a {
+  color: #585858;
+  text-decoration: underline;
+}
+.cdroc-sidebar-box a:hover {
+  color: #f7cd46;
+  text-decoration: none;
+}
   @media screen and (min-width: 40em) {
     .cdroc-sidebar-box {
       border-right: 1px solid #cfcfcf; 
     background-color: #585858;
     color: white;
     font-weight: bolder;
-  } }
+  } 
+  .cdroc-sidebar-box a {
+    color: white;
+  }
+}
   .cdroc-sidebar-box > h3 {
     position: relative;
     margin-top: 2.2rem; }

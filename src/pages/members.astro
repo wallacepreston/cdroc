@@ -1,9 +1,22 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import TeamSection from '../components/TeamSection.astro';
+import { getPageBySlug } from '../lib/wordpress';
+import type { MemberWpData } from '../types/member';
+
+// Fetch the members page content from WordPress
+let pageContent = '';
+let pageTitle = '';
+try {
+  const page = await getPageBySlug('members');
+  pageContent = page?.content?.rendered || '';
+  pageTitle = page?.title?.rendered || '';
+} catch (error) {
+  console.error("Error fetching members page content:", error);
+}
 
 // Fetch members from WordPress
-let members = [];
+let members: any[] = [];
 try {
   const perPage = 100;
   const firstPage = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}`);
@@ -18,7 +31,7 @@ try {
     const moreData = await res.json();
     data = [...data, ...moreData];
   }
-  members = data.map(member => ({
+  members = data.map((member: MemberWpData) => ({
     name: member.acf.name,
     title: member.acf.title,
     image: member.acf.image,
@@ -31,13 +44,11 @@ try {
 }
 ---
 
-<Layout title="Members Only - Corporate Directors Roundtable of Orange County">
+<Layout title={`${pageTitle} - Corporate Directors Roundtable of Orange County`}>
   <div class="cdroc-row">
     <div class="cdroc-col">
-      <h2>Our Members</h2>
-      <h5 class="members-intro">
-        The Corporate Directors Roundtable of Orange County's objective is to enhance the performance of its member Directors in their business, legal and ethical responsibilities. This objective is addressed through interactive and candid discussions among its members, and with outside experts, on challenges, emerging trends and leading practices. Eligibility for membership is by invitation only, and is based on skills, experience, and potential contributions of candidates.
-      </h5>
+      <h1 set:html={pageTitle} /> 
+      <div class="members-intro wp-content" set:html={pageContent} />
       <TeamSection members={members} />
     </div>
   </div>
