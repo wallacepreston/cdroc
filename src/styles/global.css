@@ -1423,7 +1423,7 @@ li.cdroc-search-list-item .cdroc-search-input[type="text"] {
       color: #f7f7f7; }
 
 .cdroc-footer-content {
-  padding-top: 2rem;
+  padding: 2rem 4rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
@@ -1449,8 +1449,8 @@ li.cdroc-search-list-item .cdroc-search-input[type="text"] {
     list-style: none; }
   @media screen and (min-width: 40em) {
     .cdroc-footer-content > div {
-      flex: 1 0 33.333%;
-      max-width: 33.333%;
+      flex: 1 0 50%;
+      max-width: 50%;
       padding: 0 2rem;
       text-align: center; }
       .cdroc-footer-content > div.cdroc-logo:nth-last-child(2):nth-child(1) {
@@ -1488,7 +1488,7 @@ li.cdroc-search-list-item .cdroc-search-input[type="text"] {
       padding-top: 4rem; }
       .cdroc-footer-content > div {
         flex: 1 0 25%;
-        max-width: 25%;
+        max-width: 50%;
         padding: 0 2rem;
         text-align: left; }
       .cdroc-footer-content .cdroc-logo {
