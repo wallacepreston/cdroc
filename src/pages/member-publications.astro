@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PublicationsSection from '../components/PublicationsSection.astro';
-import { getPageBySlug, CATEGORY_IDS } from '../lib/wordpress';
+import { getPageBySlug, PUBLICATION_CATEGORIES } from '../lib/wordpress';
 import type { PublicationWpData } from '../types/member';
 
 // Fetch the publications page content from WordPress
@@ -20,7 +20,7 @@ let publications: any[] = [];
 try {
   const perPage = 100;
   // Filter by category 'Publication' for efficiency
-  const firstPage = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&categories=${CATEGORY_IDS.PUBLICATION}`);
+  const firstPage = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&categories=${PUBLICATION_CATEGORIES.join(',')}`);
   const totalPages = parseInt(firstPage.headers.get('X-WP-TotalPages') || '1');
   
   // Get first page of data
@@ -28,7 +28,7 @@ try {
 
   // Get remaining pages if any
   for(let page = 2; page <= totalPages; page++) {
-    const res = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&page=${page}&categories=${CATEGORY_IDS.PUBLICATION}`);
+    const res = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&page=${page}&categories=${PUBLICATION_CATEGORIES.join(',')}`);
     const moreData = await res.json();
     data = [...data, ...moreData];
   }
@@ -38,6 +38,7 @@ try {
     publication_url: publication.acf.publication_url,
     thumbnail: publication.acf.thumbnail,
     categories: publication.categories,
+    publication_date: publication.acf.publication_date,
   }));
 } catch (error) {
   console.error("Error fetching publications:", error);

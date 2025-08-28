@@ -1,6 +1,5 @@
 ---
 import type { Publication } from '../types/member';
-import { CATEGORY_IDS } from '../lib/wordpress';
 
 interface Props {
   publications: Publication[];
@@ -8,21 +7,42 @@ interface Props {
 
 const { publications } = Astro.props;
 
-// Separate publications by category
-const books = publications.filter(pub => pub.categories && pub.categories.includes(CATEGORY_IDS.BOOK));
-const presentations = publications.filter(pub => pub.categories && pub.categories.includes(CATEGORY_IDS.PRESENTATION));
+console.log('publications', publications);
 
-// Sort each category by title
-const sortedBooks = books.sort((a, b) => a.title.localeCompare(b.title));
-const sortedPresentations = presentations.sort((a, b) => a.title.localeCompare(b.title));
+// Helper function to format dates (handles DD/MM/YYYY format)
+function formatDate(dateString: string): string {
+  // Parse DD/MM/YYYY format
+  const [day, month, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day); // month is 0-indexed in JavaScript
+  
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  
+  const monthName = months[date.getMonth()];
+  const dayNum = date.getDate();
+  const yearNum = date.getFullYear();
+  
+  return `${monthName} ${dayNum}, ${yearNum}`;
+}
+
+// Sort publications by date (most recent first)
+const sortedPublications = publications
+  .sort((a, b) => {
+    const [dayA, monthA, yearA] = a.publication_date.split('/').map(Number);
+    const [dayB, monthB, yearB] = b.publication_date.split('/').map(Number);
+    const dateA = new Date(yearA, monthA - 1, dayA);
+    const dateB = new Date(yearB, monthB - 1, dayB);
+    return dateB.getTime() - dateA.getTime(); // Descending order
+  });
 ---
 
 <div class="publications-section">
-  {sortedBooks.length > 0 && (
+  {sortedPublications.length > 0 && (
     <div class="category-section">
-      <h2 class="category-title">Author's Corner</h2>
       <div class="books-grid">
-        {sortedBooks.map((publication) => (
+        {sortedPublications.map((publication) => (
           <div class="grid-item">
             <div class="publication-card">
               {publication.publication_url ? (
@@ -48,6 +68,11 @@ const sortedPresentations = presentations.sort((a, b) => a.title.localeCompare(b
                 <em>{publication.author}</em>
               ) : (
                 <br />
+              )}
+              {publication.publication_date && (
+                <div class="publication-date">
+                  <small>{formatDate(publication.publication_date)}</small>
+                </div>
               )}
             </div>
           </div>
@@ -56,43 +81,6 @@ const sortedPresentations = presentations.sort((a, b) => a.title.localeCompare(b
     </div>
   )}
 
-  {sortedPresentations.length > 0 && (
-    <div class="category-section">
-      <h2 class="category-title">Past Program Presentations</h2>
-      <div class="presentations-grid">
-        {sortedPresentations.map((publication) => (
-          <div class="grid-item">
-            <div class="publication-card">
-              {publication.publication_url ? (
-                <a href={publication.publication_url} class="publication-link" target="_blank" rel="noopener noreferrer">
-                  <div class="publication-image">
-                    <img src={publication.thumbnail} alt={`thumbnail for ${publication.title}`} />
-                  </div>
-                  <h4 class="publication-title">
-                    {publication.title}
-                  </h4>
-                </a>
-              ) : (
-                <>
-                  <div class="publication-image">
-                    <img src={publication.thumbnail} alt={`thumbnail for ${publication.title}`} />
-                  </div>
-                  <h4 class="publication-title">
-                    {publication.title}
-                  </h4>
-                </>
-              )}
-              {publication.author ? (
-                <em>{publication.author}</em>
-              ) : (
-                <br />
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )}
 </div>
 
 <style>
@@ -197,5 +185,11 @@ const sortedPresentations = presentations.sort((a, b) => a.title.localeCompare(b
 
   .publication-link:hover .publication-title {
     color: #2c2c2c;
+  }
+
+  .publication-date {
+    margin-top: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
   }
 </style>
