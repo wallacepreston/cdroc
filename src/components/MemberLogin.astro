@@ -35,8 +35,6 @@ const { redirectTo } = Astro.props;
 </div>
 
 <script define:vars={{ redirectTo }}>
-  const currentPath = redirectTo || window.location.pathname;
-  console.log('Current path:', currentPath);
   
   const form = document.getElementById('loginForm');
   const errorMessage = document.getElementById('errorMessage');
@@ -54,10 +52,8 @@ const { redirectTo } = Astro.props;
       const member = data.find(post => {
         return post.acf?.email === email && post.acf?.member_passcode === passcode;
       });
-      console.log('Found member:', member ? 'yes' : 'no');
 
       if (member) {
-        console.log('Login successful');
         localStorage.setItem('member_info', JSON.stringify({
           name: member.acf.name.split(' ')[0],
           image: member.acf.image,
