@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import TeamSection from '../components/TeamSection.astro';
-import { getPageBySlug } from '../lib/wordpress';
+import { getPageBySlug, CATEGORY_IDS } from '../lib/wordpress';
 import type { MemberWpData } from '../types/member';
 
 // Fetch the members page content from WordPress
@@ -19,7 +19,8 @@ try {
 let members: any[] = [];
 try {
   const perPage = 100;
-  const firstPage = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}`);
+  // Filter by category 'Member' for efficiency
+  const firstPage = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&categories=${CATEGORY_IDS.MEMBER}`);
   const totalPages = parseInt(firstPage.headers.get('X-WP-TotalPages') || '1');
   
   // Get first page of data
@@ -27,7 +28,7 @@ try {
   
   // Get remaining pages if any
   for(let page = 2; page <= totalPages; page++) {
-    const res = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&page=${page}`);
+    const res = await fetch(`https://acrooc.com/wp-json/wp/v2/posts?per_page=${perPage}&page=${page}&categories=${CATEGORY_IDS.MEMBER}`);
     const moreData = await res.json();
     data = [...data, ...moreData];
   }

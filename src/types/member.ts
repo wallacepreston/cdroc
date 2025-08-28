@@ -16,3 +16,25 @@ export interface MemberWpData {
     bio: string;
   }
 }
+
+export interface Title {
+  rendered: string;
+}
+
+export interface Publication {
+  title: string;
+  author?: string;
+  publication_url?: string;
+  thumbnail: string;
+  categories: number[];
+}
+
+export interface PublicationWpData {
+  title: Title;
+  categories: number[];
+  acf: {
+    author?: string;
+    publication_url?: string;
+    thumbnail: string;
+  }
+}

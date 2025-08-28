@@ -11,3 +11,10 @@ export async function getPageBySlug(slug: string) {
   const pages = await res.json();
   return pages[0];
 } 
+
+export const CATEGORY_IDS = {
+  MEMBER: 3,
+  PUBLICATION: 10,
+  BOOK: 11,
+  PRESENTATION: 12,
+}
