@@ -28,6 +28,7 @@ export interface Publication {
   thumbnail: string;
   categories: number[];
   publication_date: string;
+  publication_date_use_exact_day?: boolean;
 }
 
 export interface PublicationWpData {
@@ -38,5 +39,6 @@ export interface PublicationWpData {
     publication_url?: string;
     thumbnail: string;
     publication_date: string;
+    publication_date_use_exact_day?: boolean;
   }
 }

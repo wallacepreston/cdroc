@@ -10,7 +10,7 @@ const { publications } = Astro.props;
 console.log('publications', publications);
 
 // Helper function to format dates (handles DD/MM/YYYY format)
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, useExactDay: boolean = true): string {
   // Parse DD/MM/YYYY format
   const [day, month, year] = dateString.split('/').map(Number);
   const date = new Date(year, month - 1, day); // month is 0-indexed in JavaScript
@@ -24,7 +24,11 @@ function formatDate(dateString: string): string {
   const dayNum = date.getDate();
   const yearNum = date.getFullYear();
   
-  return `${monthName} ${dayNum}, ${yearNum}`;
+  if (useExactDay) {
+    return `${monthName} ${dayNum}, ${yearNum}`;
+  } else {
+    return `${monthName} ${yearNum}`;
+  }
 }
 
 // Sort publications by date (most recent first)
@@ -36,6 +40,7 @@ const sortedPublications = publications
     const dateB = new Date(yearB, monthB - 1, dayB);
     return dateB.getTime() - dateA.getTime(); // Descending order
   });
+  console.log('sortedPublications', sortedPublications);
 ---
 
 <div class="publications-section">
@@ -71,7 +76,7 @@ const sortedPublications = publications
               )}
               {publication.publication_date && (
                 <div class="publication-date">
-                  <small>{formatDate(publication.publication_date)}</small>
+                  <small>{formatDate(publication.publication_date, publication.publication_date_use_exact_day)}</small>
                 </div>
               )}
             </div>

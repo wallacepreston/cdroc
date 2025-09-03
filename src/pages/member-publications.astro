@@ -15,6 +15,29 @@ try {
   console.error("Error fetching publications page content:", error);
 }
 
+// Helper function to decode HTML entities
+function decodeHtmlEntities(text: string): string {
+  const htmlEntities: { [key: string]: string } = {
+    '&#8217;': "'",
+    '&#8216;': "'",
+    '&#8220;': '"',
+    '&#8221;': '"',
+    '&#8211;': '–',
+    '&#8212;': '—',
+    '&#8230;': '…',
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&apos;': "'",
+    '&nbsp;': ' '
+  };
+  
+  return text.replace(/&#?\w+;/g, (entity) => {
+    return htmlEntities[entity] || entity;
+  });
+}
+
 // Fetch publications from WordPress
 let publications: any[] = [];
 try {
@@ -33,12 +56,13 @@ try {
     data = [...data, ...moreData];
   }
   publications = data.map((publication: PublicationWpData) => ({
-    title: publication.title.rendered,
+    title: decodeHtmlEntities(publication.title.rendered),
     author: publication.acf.author,
     publication_url: publication.acf.publication_url,
     thumbnail: publication.acf.thumbnail,
     categories: publication.categories,
     publication_date: publication.acf.publication_date,
+    publication_date_use_exact_day: publication.acf.publication_date_use_exact_day,
   }));
 } catch (error) {
   console.error("Error fetching publications:", error);
